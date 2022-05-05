@@ -100,7 +100,7 @@ if __name__ == "__main__":
 
     # Load subset of CULane data from directory
     # Original image size = 1640 x 590
-    image_size = (256, 640)  # (height, width)
+    image_size = (128, 320)  # (height, width)
     data_dir = args.data_dir
 
     train_datagen = ImageDataGenerator(
@@ -132,38 +132,6 @@ if __name__ == "__main__":
         seed = seed
     )
 
-    # train_ds = image_dataset_from_directory(
-    #     data_dir,
-    #     validation_split = 0.2,
-    #     subset = "training",
-    #     image_size = image_size,
-    #     crop_to_aspect_ratio=True,
-    #     color_mode = "grayscale",
-    #     labels = None,
-    #     label_mode = None,
-    #     shuffle = True,
-    #     seed = seed
-    # )
-
-    # val_ds = image_dataset_from_directory(
-    #     data_dir,
-    #     validation_split = 0.2,
-    #     subset = "validation",
-    #     image_size = image_size,
-    #     crop_to_aspect_ratio=True,
-    #     color_mode = "grayscale",
-    #     labels = None,
-    #     label_mode = None,
-    #     shuffle = True,
-    #     seed = seed
-    # )
-
-    # # Define layer for adding noise to input
-    # add_noise = keras.Sequential([
-    #     keras.layers.GaussianNoise(stddev=1.0, seed=seed)
-    #     # TODO: add normalization of values between 0 and 1
-    # ])
-
     # Found 10386 files belonging to 1 class 
     # Using 8309 files for training
     # Using 2077 files for validation
@@ -171,7 +139,7 @@ if __name__ == "__main__":
     dcae = DenoisingCAE(height=image_size[0], width=image_size[1], depth=1)
 
     optim = Adam(learning_rate=1e-3)
-    dcae.compile(loss="mse", metrics="accuracy", optimizer=optim)
+    dcae.compile(loss="mse", optimizer=optim)
 
     H = dcae.fit(
         train_ds,
@@ -185,11 +153,9 @@ if __name__ == "__main__":
     plt.figure()
     plt.plot(N, H.history["loss"], label="train_loss")
     plt.plot(N, H.history["val_loss"], label="val_loss")
-    plt.plot(N, H.history["accuracy"], label="train_accuracy")
-    plt.plot(N, H.history["val_accuracy"], label="val_accuracy")
-    plt.title("Training Loss and Accuracy")
+    plt.title("Training Loss (MSE)")
     plt.xlabel("Epoch #")
-    plt.ylabel("Loss/Accuracy")
+    plt.ylabel("Loss (MSE)")
     plt.legend(loc="upper right")
     plt.savefig("dcae_training_metrics.png", format='png')
 
