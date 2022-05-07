@@ -2,6 +2,8 @@ import numpy as np
 import keras
 import argparse
 
+import os
+
 from PIL import Image
 import matplotlib.pyplot as plt
 
@@ -14,12 +16,13 @@ def model_load(model_dir):
 
     return model
 
-def data_load(data_dir, num_examples, resize_shape):
+def data_load(data_dir, resize_shape):
     test = []
-    for i in range(num_examples):
-        img = Image.open("%s/frame%d_reduced.jpg" % (data_dir, i))
+    image_files = [f for f in os.listdir(data_dir) if f.endswith('.jpg')]
+    for image in image_files:
+        img = Image.open(os.path.join(data_dir, image)).convert('L')
         img_data = img.resize(resize_shape)
-        test.append(np.array(img_data))
+        test.append(np.array(img_data))    
             
     testX = np.asarray(test)
     # print(testX.shape)
@@ -46,7 +49,7 @@ if __name__ == "__main__":
     height = 128
     width = 320
     img_shape = (height, width) 
-    test, test_noisy = data_load(data_dir, 1260, resize_shape=(width, height))
+    test, test_noisy = data_load(data_dir, resize_shape=(width, height))
     
     # print(test_noisy.shape)
     test_loss = model.evaluate(test_noisy, test)
