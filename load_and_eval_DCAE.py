@@ -18,11 +18,13 @@ def model_load(model_dir):
 
 def data_load(data_dir, noise_level, resize_shape):
     test = []
-    image_files = [f for f in os.listdir(data_dir) if f.endswith('.jpg')]
-    for image in image_files:
-        img = Image.open(os.path.join(data_dir, image)).convert('L')
-        img_data = img.resize(resize_shape)
-        test.append(np.array(img_data))    
+    sub_dirs = [s for s in os.listdir(data_dir) if s.endswith('.MP4')]
+    for sub_dir in sub_dirs:
+        image_files = [f for f in os.listdir(os.path.join(data_dir,sub_dir)) if f.endswith('.jpg')]
+        for image in image_files:
+            img = Image.open(os.path.join(data_dir, sub_dir, image)).convert('L')
+            img_data = img.resize(resize_shape)
+            test.append(np.array(img_data))    
             
     testX = np.asarray(test)
     # print(testX.shape)
@@ -53,7 +55,7 @@ if __name__ == "__main__":
     img_shape = (height, width) 
     test, test_noisy = data_load(data_dir, noise_level=noise_level, resize_shape=(width, height))
     
-    # print(test_noisy.shape)
+    print(test_noisy.shape)
     test_loss = model.evaluate(test_noisy, test)
     print("Test set loss:", test_loss)
 
@@ -69,14 +71,15 @@ if __name__ == "__main__":
     for i in range(len(y_labels)):
         ax[i,0].set_ylabel(y_labels[i], fontsize=14)
 
+    selector = 200
     for c in range(num_display):
         # Plot original
-        ax[0,c].imshow(test[c].reshape(img_shape), cmap=plt.cm.gray)
+        ax[0,c].imshow(test[c*selector].reshape(img_shape), cmap=plt.cm.gray)
 
         # Plot noisy
-        noisy_example = test_noisy[c]
+        noisy_example = test_noisy[c*selector]
         # print(noisy_example.shape)
-        ax[1,c].imshow(test_noisy[c].reshape(img_shape), cmap=plt.cm.gray)
+        ax[1,c].imshow(test_noisy[c*selector].reshape(img_shape), cmap=plt.cm.gray)
 
         # Plot reconstructed
         noisy_example = np.expand_dims(noisy_example, axis=0)
